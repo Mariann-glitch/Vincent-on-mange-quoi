@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f6f0e7">
+<title>Vincent, on mange quoi ?</title>
+<style>
+:root{--bg:#f6f0e7;--card:#fffdf9;--ink:#29251f;--accent:#c96f4a;--soft:#ead9ca}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:520px;margin:auto;padding:28px 18px 40px}
+header{text-align:center;padding:12px 0 20px} h1{font-size:31px;margin:8px 0 4px} .sub{opacity:.7}
+button{width:100%;border:0;border-radius:16px;padding:16px;font-size:17px;font-weight:700;background:var(--accent);color:white;box-shadow:0 5px 14px #00000018;cursor:pointer}
+.card{background:var(--card);border-radius:22px;padding:22px;margin-top:18px;box-shadow:0 3px 14px #0000000d}
+.badge{display:inline-block;background:var(--soft);padding:6px 10px;border-radius:999px;font-size:13px;margin-bottom:8px}
+h2{font-size:25px;margin:5px 0 8px}.meta{opacity:.7;margin-bottom:16px}
+ul,ol{padding-left:22px;line-height:1.55} li{margin:7px 0}
+.secondary{margin-top:12px;background:#fff;border:2px solid var(--soft);color:var(--ink);box-shadow:none}
+.small{text-align:center;font-size:12px;opacity:.55;margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div style="font-size:42px">🍽️</div>
+<h1>Vincent, on mange quoi ?</h1>
+<div class="sub">Besoin d'une idée pour ce soir ?</div>
+</header>
+<button id="findMeal">🎲 Trouve-moi un repas</button>
+<section id="result" class="card" style="display:none"></section>
+<div class="small">Version 1 • spécial placards de la maison ❤️</div>
+</main>
+<script>
+const meals=[
+["Couscous express aux pois chiches","20 min",["semoule de couscous","boîte de pois chiches ou haricots verts","ratatouille en boîte","épices","huile d’olive"],["Préparer la semoule.","Réchauffer la ratatouille avec les légumes.","Mélanger et servir."]],
+["Ebly façon risotto au jambon et fromage","20 min",["Ebly","jambon","fromage","bouillon ou eau"],["Cuire l’Ebly.","Ajouter le jambon et un peu de fromage.","Mélanger jusqu’à obtenir une texture crémeuse."]],
+["Perles au thon et petits pois","15 min",["perles","boîte de thon","petits pois en boîte","fromage ou crème si disponible"],["Cuire les perles.","Égoutter le thon et les petits pois.","Mélanger et ajouter un peu de fromage ou de crème si disponible."]],
+["Crozet jambon-fromage","20 min",["Crozet","jambon","fromage"],["Cuire les Crozet.","Ajouter le jambon et le fromage.","Faire fondre quelques minutes à feu doux."]],
+["Purée, œufs au plat et haricots verts","15 min",["purée","œufs","haricots verts en boîte"],["Préparer la purée.","Réchauffer les haricots verts.","Cuire les œufs au plat et servir ensemble."]],
+["Nouilles aux œufs et jambon","15 min",["nouilles","œufs","jambon","fromage ou sauce soja si disponible"],["Cuire les nouilles.","Ajouter le jambon.","Faire revenir avec les œufs battus et mélanger."]],
+["Poisson pané, purée et petits pois","20 min",["poissons panés du congélateur","purée","petits pois en boîte"],["Cuire les poissons panés.","Préparer la purée.","Réchauffer les petits pois et servir."]],
+["Poisson pané, riz et épinards","25 min",["poissons panés du congélateur","riz","épinards surgelés"],["Cuire le riz.","Réchauffer les épinards.","Cuire les poissons panés et servir."]],
+["Crêpes salées du congélateur","15 min",["crêpes salées du congélateur","jambon","fromage","salade ou légumes si disponibles"],["Réchauffer les crêpes.","Garnir de jambon et fromage.","Faire dorer à la poêle."]],
+["Riz à la ratatouille et œufs","20 min",["riz","ratatouille en boîte","œufs"],["Cuire le riz.","Réchauffer la ratatouille.","Ajouter un œuf au plat ou mollet."]],
+["Lentilles et saucisse/jambon","25 min",["lentilles","jambon ou saucisse si disponible"],["Réchauffer ou cuire les lentilles.","Ajouter le jambon ou la saucisse.","Servir bien chaud."]],
+["Flageolets au jambon et œuf","15 min",["flageolets","jambon","œufs"],["Réchauffer les flageolets.","Ajouter le jambon.","Servir avec un œuf au plat."]],
+["Sardines, pommes de terre et œufs","25 min",["sardines en boîte","pommes de terre","œufs"],["Cuire les pommes de terre.","Cuire les œufs.","Servir avec les sardines et une vinaigrette si disponible."]],
+["Tartines thon-fromage","15 min",["pain","thon en boîte","fromage"],["Garnir le pain de thon et fromage.","Passer au four ou à la poêle couverte jusqu’à ce que le fromage fonde."]],
+["Pizza maison express","30 min",["pâte à pizza ou pain","ratatouille ou sauce tomate","jambon","fromage"],["Garnir la pâte.","Ajouter jambon et fromage.","Cuire au four jusqu’à ce que la pâte soit dorée."]],
+["Betteraves, maïs, œufs et pommes de terre","25 min",["betteraves","maïs en boîte","œufs","pommes de terre"],["Cuire les pommes de terre et les œufs.","Couper les légumes.","Faire une salade composée."]],
+["Haricots verts, pommes de terre et steak","20 min",["haricots verts en boîte","pommes de terre","steak du frigo ou congélateur"],["Cuire les pommes de terre.","Réchauffer les haricots verts.","Cuire le steak et servir."]],
+["Steak, riz et petits pois","20 min",["steak","riz","petits pois en boîte"],["Cuire le riz.","Réchauffer les petits pois.","Cuire le steak et servir."]],
+["Riz au thon et maïs","15 min",["riz","thon en boîte","maïs en boîte"],["Cuire le riz.","Égoutter le thon et le maïs.","Mélanger avec une vinaigrette ou un peu de mayonnaise si disponible."]],
+["Asperges, œufs et pommes de terre","25 min",["asperges en boîte","œufs","pommes de terre"],["Cuire les pommes de terre.","Cuire les œufs.","Servir avec les asperges et une vinaigrette."]],
+["Épinards crémeux avec œufs et riz","20 min",["épinards surgelés","riz","œufs","crème ou fromage si disponible"],["Cuire le riz.","Réchauffer les épinards avec un peu de crème ou fromage.","Ajouter des œufs au plat."]]
+];
+
+let last=-1;
+function newMeal(){
+ let i; do{i=Math.floor(Math.random()*meals.length)}while(meals.length>1&&i===last); last=i;
+ const m=meals[i];
+ document.getElementById("result").style.display="block";
+ document.getElementById("result").innerHTML=
+ `<div class="badge">⏱️ ${m[1]}</div><h2>${m[0]}</h2>
+ <div><strong>🧺 Il faut :</strong><ul>${m[2].map(x=>`<li>${x}</li>`).join("")}</ul></div>
+ <div><strong>👨‍🍳 Comment faire :</strong><ol>${m[3].map(x=>`<li>${x}</li>`).join("")}</ol></div>
+ <button class="secondary" onclick="newMeal()">🔄 Une autre idée</button>
+ <button class="secondary" onclick="chooseMeal()">✅ OK, je choisis ça !</button>`;
+ window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+document.getElementById("findMeal").addEventListener("click", newMeal);
+function chooseMeal(){
+ const r=document.getElementById("result");
+ r.innerHTML='<div style="text-align:center;font-size:22px">😋 Bon choix !</div><p style="text-align:center">Allez Vincent, à toi de jouer ! 👨‍🍳</p><button class="secondary" onclick="r.style.display=\'none\'">✖️ Fermer</button>';
+}
+</script>
+</body>
+</html>
